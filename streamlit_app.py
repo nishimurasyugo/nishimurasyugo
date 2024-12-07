@@ -1,52 +1,65 @@
 import streamlit as st
-import random
+import pandas as pd
 
-# 筋トレメニュー（例）
-exercise_dict = {
-    "筋力増加": {
-        "上半身": ["ベンチプレス", "ダンベルプレス", "バーベルロー", "チンニング", "ショルダープレス"],
-        "下半身": ["スクワット", "レッグプレス", "デッドリフト", "ランジ", "レッグカール"],
-        "全身": ["デッドリフト", "クリーン＆ジャーク", "スナッチ", "ケトルベルスイング", "バーピー"]
-    },
-    "ダイエット": {
-        "上半身": ["腕立て伏せ", "ダンベルカール", "プッシュアップ", "ショルダープレス", "バイセップカール"],
-        "下半身": ["スクワット", "レッグレイズ", "ランジ", "スプリットスクワット", "ジャンピングスクワット"],
-        "全身": ["ジャンプジャック", "バーピー", "マウンテンクライマー", "ローワープランク", "スケータージャンプ"]
-    },
-    "体力向上": {
-        "上半身": ["プッシュアップ", "ダンベルロー", "チェストプレス", "アームカール", "ラットプルダウン"],
-        "下半身": ["スプリットスクワット", "ヒップスラスト", "カーフレイズ", "バックスクワット", "ウォーキングランジ"],
-        "全身": ["バーピー", "ジャンプスクワット", "ケトルベルスイング", "スピードジャンプ", "ジャンプランジ"]
-    }
+# 1回のエクササイズにかかる時間（秒）
+exercise_time = 60  # 1分間
+
+# 道具を使わずにできるエクササイズ
+exercises = {
+    "腕立て伏せ": 3,  # 3セット
+    "スクワット": 3,
+    "クランチ": 3,
+    "ランジ": 3,
+    "プランク": 2,  # セット数
+    "サイドプランク": 2,
+    "バーピー": 3,
+    "マウンテンクライマー": 3
 }
 
-# トレーニングメニューを生成する関数
-def generate_training_menu(goal, body_part):
-    exercises = exercise_dict[goal][body_part]
-    return random.sample(exercises, 3)  # 3つのエクササイズをランダムに選ぶ
+# 1回あたりのセット数
+sets = {
+    "腕立て伏せ": 12,
+    "スクワット": 15,
+    "クランチ": 20,
+    "ランジ": 12,
+    "プランク": 30,  # 秒
+    "サイドプランク": 20,  # 秒
+    "バーピー": 10,
+    "マウンテンクライマー": 20
+}
 
-# Streamlitのインターフェース
-st.title("1ヶ月分の筋トレメニュー生成アプリ")
+# メニューを作成する関数
+def generate_daily_menu():
+    menu = []
+    total_time = 0
+    for exercise, num_sets in exercises.items():
+        set_time = sets[exercise] * exercise_time  # 1セットにかかる時間
+        exercise_total_time = set_time * num_sets  # エクササイズの合計時間（秒）
+        total_time += exercise_total_time
+        menu.append([exercise, num_sets, set_time, exercise_total_time])
+    
+    # 表の作成
+    df = pd.DataFrame(menu, columns=["エクササイズ", "セット数", "1セットの時間（秒）", "総時間（秒）"])
+    df["総時間（秒）"] = df["総時間（秒）"].apply(lambda x: f"{x / 60:.1f} 分")  # 分単位に変換
+    total_time_min = total_time / 60  # 総時間（分）
+    
+    return df, total_time_min
 
-# ユーザーが選べるオプションを提供
-goal = st.selectbox("目標を選んでください", ["筋力増加", "ダイエット", "体力向上"])
-body_part = st.selectbox("トレーニングの部位を選んでください", ["上半身", "下半身", "全身"])
+# Streamlit アプリのタイトル
+st.title("道具を使わずにできる筋トレメニュー")
 
-# トレーニングメニューを生成
-menu = generate_training_menu(goal, body_part)
+# メニューを生成
+daily_menu, total_time = generate_daily_menu()
 
-# 結果を表示
-st.write(f"あなたの目標: {goal}")
-st.write(f"トレーニング部位: {body_part}")
-st.write("今週のトレーニングメニュー（3つのエクササイズ）:")
-for i, exercise in enumerate(menu, 1):
-    st.write(f"{i}. {exercise}")
+# メニューを表示
+st.subheader("1日の筋トレメニュー")
+st.write(f"このメニューは約{total_time:.1f}分で完了します。")
+st.table(daily_menu)
 
-# 1ヶ月分のメニューを表示（週5回のトレーニング）
-st.subheader("1ヶ月分の筋トレメニュー（週5回）")
-for week in range(1, 5):  # 4週間分
-    st.write(f"### 第{week}週")
-    for day in range(1, 6):  # 週5回トレーニング
-        day_name = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日"][day - 1]
-        menu = generate_training_menu(goal, body_part)
-        st.write(f"{day_name}: {', '.join(menu)}")
+# ヒント
+st.subheader("ヒント")
+st.write("""
+- 各エクササイズの間に30秒〜1分の休憩を取ってください。
+- 適切なフォームで行うことを心がけましょう。
+- トレーニングがきつい場合は、回数を減らして徐々に増やしていきましょう。
+""")
