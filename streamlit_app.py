@@ -1,31 +1,52 @@
-# Streamlitライブラリをインポート
 import streamlit as st
+import random
 
-# ページ設定（タブに表示されるタイトル、表示幅）
-st.set_page_config(page_title="タイトル", layout="wide")
+# 筋トレメニュー（例）
+exercise_dict = {
+    "筋力増加": {
+        "上半身": ["ベンチプレス", "ダンベルプレス", "バーベルロー", "チンニング", "ショルダープレス"],
+        "下半身": ["スクワット", "レッグプレス", "デッドリフト", "ランジ", "レッグカール"],
+        "全身": ["デッドリフト", "クリーン＆ジャーク", "スナッチ", "ケトルベルスイング", "バーピー"]
+    },
+    "ダイエット": {
+        "上半身": ["腕立て伏せ", "ダンベルカール", "プッシュアップ", "ショルダープレス", "バイセップカール"],
+        "下半身": ["スクワット", "レッグレイズ", "ランジ", "スプリットスクワット", "ジャンピングスクワット"],
+        "全身": ["ジャンプジャック", "バーピー", "マウンテンクライマー", "ローワープランク", "スケータージャンプ"]
+    },
+    "体力向上": {
+        "上半身": ["プッシュアップ", "ダンベルロー", "チェストプレス", "アームカール", "ラットプルダウン"],
+        "下半身": ["スプリットスクワット", "ヒップスラスト", "カーフレイズ", "バックスクワット", "ウォーキングランジ"],
+        "全身": ["バーピー", "ジャンプスクワット", "ケトルベルスイング", "スピードジャンプ", "ジャンプランジ"]
+    }
+}
 
-# タイトルを設定
-st.title('Streamlitのサンプルアプリ')
+# トレーニングメニューを生成する関数
+def generate_training_menu(goal, body_part):
+    exercises = exercise_dict[goal][body_part]
+    return random.sample(exercises, 3)  # 3つのエクササイズをランダムに選ぶ
 
-# テキスト入力ボックスを作成し、ユーザーからの入力を受け取る
-user_input = st.text_input('あなたの名前を入力してください')
+# Streamlitのインターフェース
+st.title("1ヶ月分の筋トレメニュー生成アプリ")
 
-# ボタンを作成し、クリックされたらメッセージを表示
-if st.button('挨拶する'):
-    if user_input:  # 名前が入力されているかチェック
-        st.success(f'🌟 こんにちは、{user_input}さん! 🌟')  # メッセージをハイライト
-    else:
-        st.error('名前を入力してください。')  # エラーメッセージを表示
+# ユーザーが選べるオプションを提供
+goal = st.selectbox("目標を選んでください", ["筋力増加", "ダイエット", "体力向上"])
+body_part = st.selectbox("トレーニングの部位を選んでください", ["上半身", "下半身", "全身"])
 
-# スライダーを作成し、値を選択
-number = st.slider('好きな数字（10進数）を選んでください', 0, 100)
+# トレーニングメニューを生成
+menu = generate_training_menu(goal, body_part)
 
-# 補足メッセージ
-st.caption("十字キー（左右）でも調整できます。")
+# 結果を表示
+st.write(f"あなたの目標: {goal}")
+st.write(f"トレーニング部位: {body_part}")
+st.write("今週のトレーニングメニュー（3つのエクササイズ）:")
+for i, exercise in enumerate(menu, 1):
+    st.write(f"{i}. {exercise}")
 
-# 選択した数字を表示
-st.write(f'あなたが選んだ数字は「{number}」です。')
-
-# 選択した数値を2進数に変換
-binary_representation = bin(number)[2:]  # 'bin'関数で2進数に変換し、先頭の'0b'を取り除く
-st.info(f'🔢 10進数の「{number}」を2進数で表現すると「{binary_representation}」になります。 🔢')  # 2進数の表示をハイライト
+# 1ヶ月分のメニューを表示（週5回のトレーニング）
+st.subheader("1ヶ月分の筋トレメニュー（週5回）")
+for week in range(1, 5):  # 4週間分
+    st.write(f"### 第{week}週")
+    for day in range(1, 6):  # 週5回トレーニング
+        day_name = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日"][day - 1]
+        menu = generate_training_menu(goal, body_part)
+        st.write(f"{day_name}: {', '.join(menu)}")
