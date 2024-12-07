@@ -35,6 +35,7 @@ if st.button("運勢をチェック"):
     
     # 今日の運勢を取得
     fortune = get_daily_fortune()
+    st.text(today)
     
     # 月日が一致した場合に運勢を表示
     if month == current_month and day == current_day:
