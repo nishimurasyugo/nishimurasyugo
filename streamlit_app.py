@@ -1,65 +1,43 @@
+# 必要なライブラリをインポート
 import streamlit as st
-import pandas as pd
 
-# 1回のエクササイズにかかる時間（秒）
-exercise_time = 60  # 1分間
-
-# 道具を使わずにできるエクササイズ
-exercises = {
-    "腕立て伏せ": 3,  # 3セット
-    "スクワット": 3,
-    "クランチ": 3,
-    "ランジ": 3,
-    "プランク": 2,  # セット数
-    "サイドプランク": 2,
-    "バーピー": 3,
-    "マウンテンクライマー": 3
-}
-
-# 1回あたりのセット数
-sets = {
-    "腕立て伏せ": 12,
-    "スクワット": 15,
-    "クランチ": 20,
-    "ランジ": 12,
-    "プランク": 30,  # 秒
-    "サイドプランク": 20,  # 秒
-    "バーピー": 10,
-    "マウンテンクライマー": 20
-}
-
-# メニューを作成する関数
-def generate_daily_menu():
-    menu = []
-    total_time = 0
-    for exercise, num_sets in exercises.items():
-        set_time = sets[exercise] * exercise_time  # 1セットにかかる時間
-        exercise_total_time = set_time * num_sets  # エクササイズの合計時間（秒）
-        total_time += exercise_total_time
-        menu.append([exercise, num_sets, set_time, exercise_total_time])
+# ユークリッドの互除法アルゴリズムを実装する関数
+def euclidean_algorithm(a, b):
+    # 計算手順を記録するリスト
+    steps = []  
     
-    # 表の作成
-    df = pd.DataFrame(menu, columns=["エクササイズ", "セット数", "1セットの時間（秒）", "総時間（秒）"])
-    df["総時間（秒）"] = df["総時間（秒）"].apply(lambda x: f"{x / 60:.1f} 分")  # 分単位に変換
-    total_time_min = total_time / 60  # 総時間（分）
-    
-    return df, total_time_min
+    # bが0になるまで繰り返し計算
+    while b != 0:
+        # 商と余りを求める
+        remainder = a % b
+        # 計算の手順をリストに追加
+        steps.append(f"{a} ÷ {b} = {a // b} 余り {remainder}")
+        # a, bの値を更新（次のステップに進む）
+        a, b = b, remainder
+        
+    # 最終的にaが最大公約数となる
+    return a, steps
 
-# Streamlit アプリのタイトル
-st.title("道具を使わずにできる筋トレメニュー")
+# Streamlitのインターフェースの設定
+st.title("ユークリッドの互除法で最大公約数を計算")
 
-# メニューを生成
-daily_menu, total_time = generate_daily_menu()
+# ユーザーから2つの整数を入力してもらう
+# ここでmin_value=1は1以上の数値を入力させる制約をかけている
+a = st.number_input("整数aを入力してください", min_value=1, value=48)
+b = st.number_input("整数bを入力してください", min_value=1, value=18)
 
-# メニューを表示
-st.subheader("1日の筋トレメニュー")
-st.write(f"このメニューは約{total_time:.1f}分で完了します。")
-st.table(daily_menu)
-
-# ヒント
-st.subheader("ヒント")
-st.write("""
-- 各エクササイズの間に30秒〜1分の休憩を取ってください。
-- 適切なフォームで行うことを心がけましょう。
-- トレーニングがきつい場合は、回数を減らして徐々に増やしていきましょう。
-""")
+# 計算ボタンを押したときの処理
+if st.button("最大公約数を計算"):
+    # ユーザーが入力した値が有効かを確認
+    if a > 0 and b > 0:
+        # ユークリッドの互除法を使って最大公約数と計算手順を取得
+        gcd, steps = euclidean_algorithm(a, b)
+        
+        # 結果を表示
+        st.subheader(f"最大公約数: {gcd}")
+        st.write("計算手順:")
+        for step in steps:
+            st.write(step)  # 各ステップを1行ずつ表示
+    else:
+        # 入力が不正な場合のエラーメッセージ
+        st.error("整数aとbは1以上の値を入力してください。")
