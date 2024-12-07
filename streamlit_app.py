@@ -15,6 +15,7 @@ def get_daily_fortune():
         "ストレスがたまりやすい日です。リラックスする時間を作りましょう。",
         "今日の運勢は中程度です。無理せず、ゆっくりと過ごすと良いでしょう。",
         "今日は少し注意が必要な日です。大事な決断は後回しにして、落ち着いて考えましょう。",
+        "today is your happy day,so you shuold express your feelings"
     ]
     # ランダムに運勢を選ぶ
     return random.choice(fortunes)
@@ -35,7 +36,6 @@ if st.button("運勢をチェック"):
     
     # 今日の運勢を取得
     fortune = get_daily_fortune()
-    st.text(today)
     
     # 月日が一致した場合に運勢を表示
     if month == current_month and day == current_day:
